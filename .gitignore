@@ -1,5 +1,4 @@
 sqlgen
 *.sqlite
 *.txt
-*_sql.go
 _docs
