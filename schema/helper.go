@@ -78,13 +78,17 @@ func Load(tree *parse.Node) *Table {
 		}
 
 		// get the full path name
-		path := node.Path()
-		var parts []string
-		for _, part := range path {
-			parts = append(parts, part.Name)
+		if node.Tags.Name == "" {
+			path := node.Path()
+			var parts []string
+			for _, part := range path {
+				parts = append(parts, part.Name)
+			}
+			field.Name = strings.Join(parts, "_")
+			field.Name = inflections.Underscore(field.Name)
+		} else {
+			field.Name = node.Tags.Name
 		}
-		field.Name = strings.Join(parts, "_")
-		field.Name = inflections.Underscore(field.Name)
 
 		table.Fields = append(table.Fields, field)
 	}
