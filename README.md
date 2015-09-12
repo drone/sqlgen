@@ -223,6 +223,19 @@ CREATE TALBE IF NOT EXISTS users (
 );
 ```
 
+### JSON Encoding
+
+Complex types that do not have native database column types, such as `[]string` or `map[string]string` can be encoded and stored as JSON. You can specify the encoding instruction as a Tag:
+
+```diff
+type User struct {
+    ID     int64  `sql:"pk: true"`
+    Login  string
+    Email  string
++   Label  []string `sql:"encode: json"
+}
+```
+
 ### Dialects
 
 You may specify one of the following SQL dialects when generating your code: `postgres`, `mysql` and `sqlite`. The default value is `sqlite`.
