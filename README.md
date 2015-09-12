@@ -109,7 +109,7 @@ For example:
 ```Go
 type User struct {
     ID      int64  `sql:"pk: true, auto: true"` // primary key, increment
-    Login   string `sql:"unique: user_login"    // creates unique index
+    Login   string `sql:"unique: user_login"`   // creates unique index
     Email   string `sql:"size: 255"`            // field size
     Company string `sql:"index: user_company"`  // creates index
     Temp    string `sql:"-"`                    // skip this field
