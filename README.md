@@ -115,8 +115,8 @@ This information allows the tool to generate smarter SQL statements:
 
 ```diff
 CREATE TABLE IF NOT EXISTS users (
--user_id     INTEGER PRIMARY KEY AUTOINCREMENT
-+user_id     INTEGER
+-user_id     INTEGER
++user_id     INTEGER PRIMARY KEY AUTOINCREMENT
 ,user_login  TEXT
 ,user_email  TEXT
 );
@@ -242,10 +242,10 @@ package demo
 //go:generate sqlgen -file user.go -type User -pkg demo -o user_sql.go
 
 type User struct {
-	ID     int64  `sql:"pk: true, auto: true"`
-	Login  string `sql:"unique: user_login"`
-	Email  string `sql:"size: 1024"`
-	Avatar string
+    ID     int64  `sql:"pk: true, auto: true"`
+    Login  string `sql:"unique: user_login"`
+    Email  string `sql:"size: 1024"`
+    Avatar string
 }
 ```
 
