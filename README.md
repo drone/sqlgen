@@ -46,7 +46,7 @@ We can run the following command:
 sqlgen -file user.go -type User -pkg demo
 ```
 
-This will output the following generated code:
+The tool outputs the following generated code:
 
 ```Go
 func ScanUser(row *sql.Row) (*User, error) {
@@ -71,7 +71,15 @@ func ScanUser(row *sql.Row) (*User, error) {
 	return v, nil
 }
 
-const SelectUsers = `
+const CreateUserStmt = `
+CREATE TABLE IF NOT EXISTS users (
+ user_id     INTEGER
+,user_login  TEXT
+,user_email  TEXT
+);
+`
+
+const SelectUserStmt = `
 SELECT 
  user_id
 ,user_login
@@ -79,7 +87,7 @@ SELECT
 FROM users 
 `
 
-const SelectUserRange = `
+const SelectUserRangeStmt = `
 SELECT 
  user_id
 ,user_login
@@ -92,49 +100,93 @@ LIMIT ? OFFSET ?
 // more functions and sql statements not displayed
 ```
 
-### Tags
-
-You may annotate your fields with the following tags:
-
-* `auto` the field is auto-incremented
-* `pk` the field is a primary key
-* `size` the field size
-* `type` the field type (TODO)
-* `index` the field uses the specified index
-* `unique` the field uses the specified unique index
-* `-` ignores the field
-
-For example:
+This is a great start, but what if we want to specify primary keys, column sizes and more? This may be acheived by annotating your code using Go tags. For example, we can tag the `ID` field to indicate it is a primary key and will auto increment:
 
 ```Go
 type User struct {
-    ID      int64  `sql:"pk: true, auto: true"` // primary key, increment
-    Login   string `sql:"unique: user_login"`   // creates unique index
-    Email   string `sql:"size: 255"`            // field size
-    Company string `sql:"index: user_company"`  // creates index
-    Temp    string `sql:"-"`                    // skip this field
+    ID      int64  `sql:"pk: true, auto: true"`
+    Login   string
+    Email   string
 }
 ```
 
-Adding `unique` and `index` tags will generate `create index` statements, as well as `select`, `select count`, `select range`, `update` and `delete` statements using the indexed fields. For example:
+This information allows the tool to generate smarter SQL statements:
+
+```diff
+CREATE TABLE IF NOT EXISTS users (
+-user_id     INTEGER PRIMARY KEY AUTOINCREMENT
++user_id     INTEGER
+,user_login  TEXT
+,user_email  TEXT
+);
+```
+
+Including SQL statements to select, insert, update and delete data using the primary key:
 
 ```Go
-const CreateUserLogin = `
-CREATE UNIQUE INDEX IF NOT EXISTS user_login ON users (user_login)
-`
-
-const SelectUserLogin = `
+const SelectUserPkeyStmt = `
 SELECT 
  user_id
 ,user_login
 ,user_email
-,user_company
-FROM users 
+WHERE user_id=?
+`
+
+const UpdateUserPkeyStmt = `
+UPDATE users SET 
+ user_id=?
+,user_login=?
+,user_email=?
+WHERE user_id=?
+`
+
+const DeleteUserPkeyStmt = `
+DELETE FROM users 
+WHERE user_id=?
+`
+```
+
+We can take this one step further and annotate indexes. In our example, we probably want to make sure the `user_login` field has a unique index:
+
+```Go
+type User struct {
+    ID      int64  `sql:"pk: true, auto: true"`
+    Login   string `sql:"unique: user_login"`
+    Email   string
+}
+```
+
+This information instructs the tool to generate the following:
+
+
+```Go
+const CreateUserLogin = `
+CREATE UNIQUE INDEX IF NOT EXISTS user_login ON users (user_login)
+```
+
+The tool also assumes that we probably indend to fetch data from the database using this index. The tool will therefore automatically generate the following queries:
+
+```Go
+const SelectUserLoginStmt = `
+SELECT 
+ user_id
+,user_login
+,user_email
 WHERE user_login=?
 `
 
+const UpdateUserLoginStmt = `
+UPDATE users SET 
+ user_id=?
+,user_login=?
+,user_email=?
+WHERE user_login=?
+`
 
-// more sql statements not displayed
+const DeleteUserLoginStmt = `
+DELETE FROM users 
+WHERE user_login=?
+`
 ```
 
 ### Nesting
@@ -177,6 +229,7 @@ You may specify one of the following SQL dialects when generating your code: `po
 sqlgen -file user.go -type User -pkg demo -db postgres
 ```
 
+
 ### Go Generate
 
 Example use with `go:generate`:
@@ -189,7 +242,7 @@ package demo
 type User struct {
 	ID     int64  `sql:"pk: true, auto: true"`
 	Login  string `sql:"unique: user_login"`
-	Email  string `sql:"unique: user_email"`
+	Email  string `sql:"size: 1024"`
 	Avatar string
 }
 ```
