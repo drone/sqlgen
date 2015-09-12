@@ -140,20 +140,6 @@ func ScanHooks(rows *sql.Rows) ([]*Hook, error) {
 	return vv, rows.Err()
 }
 
-func SelectHook(db *sql.DB, query string, args ...interface{}) (*Hook, error) {
-	row := db.QueryRow(query, args...)
-	return ScanHook(row)
-}
-
-func SelectHooks(db *sql.DB, query string, args ...interface{}) ([]*Hook, error) {
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return ScanHooks(rows)
-}
-
 func SliceHook(v *Hook) []interface{} {
 	var v0 int64
 	var v1 string
@@ -217,7 +203,40 @@ func SliceHook(v *Hook) []interface{} {
 	}
 }
 
-const CreateHook = `
+func SelectHook(db *sql.DB, query string, args ...interface{}) (*Hook, error) {
+	row := db.QueryRow(query, args...)
+	return ScanHook(row)
+}
+
+func SelectHooks(db *sql.DB, query string, args ...interface{}) ([]*Hook, error) {
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return ScanHooks(rows)
+}
+
+func InsertHook(db *sql.DB, query string, v *Hook) error {
+
+	res, err := db.Exec(query, SliceHook(v)[1:]...)
+	if err != nil {
+		return err
+	}
+
+	v.ID, err = res.LastInsertId()
+	return err
+}
+
+func UpdateHook(db *sql.DB, query string, v *Hook) error {
+
+	args := SliceHook(v)[1:]
+	args = append(args, v.ID)
+	_, err := db.Exec(query, args...)
+	return err
+}
+
+const CreateHookStmt = `
 CREATE TABLE IF NOT EXISTS hooks (
  hook_id                             INTEGER PRIMARY KEY AUTO_INCREMENT
 ,hook_sha                            VARCHAR(512)
@@ -238,7 +257,7 @@ CREATE TABLE IF NOT EXISTS hooks (
 );
 `
 
-const InsertHook = `
+const InsertHookStmt = `
 INSERT INTO hooks (
  hook_sha
 ,hook_after
@@ -258,7 +277,7 @@ INSERT INTO hooks (
 ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 `
 
-const SelectAllHook = `
+const SelectHooksStmt = `
 SELECT 
  hook_id
 ,hook_sha
@@ -279,7 +298,7 @@ SELECT
 FROM hooks 
 `
 
-const SelectHookRange = `
+const SelectHookRangeStmt = `
 SELECT 
  hook_id
 ,hook_sha
@@ -301,12 +320,12 @@ FROM hooks
 LIMIT ? OFFSET ?
 `
 
-const SelectHookCount = `
+const SelectHookCountStmt = `
 SELECT count(1)
 FROM hooks 
 `
 
-const SelectHookPrimaryKey = `
+const SelectHookPkeyStmt = `
 SELECT 
  hook_id
 ,hook_sha
@@ -328,7 +347,7 @@ FROM hooks
 WHERE hook_id=?
 `
 
-const UpdateHookPrimaryKey = `
+const UpdateHookPkeyStmt = `
 UPDATE hooks SET 
  hook_id=?
 ,hook_sha=?
@@ -349,7 +368,7 @@ UPDATE hooks SET
 WHERE hook_id=?
 `
 
-const DeleteHookPrimaryKey = `
+const DeleteHookPkeyStmt = `
 DELETE FROM hooks 
 WHERE hook_id=?
 `

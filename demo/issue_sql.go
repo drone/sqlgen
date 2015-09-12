@@ -4,6 +4,7 @@ package demo
 
 import (
 	"database/sql"
+	"encoding/json"
 )
 
 func ScanIssue(row *sql.Row) (*Issue, error) {
@@ -80,20 +81,6 @@ func ScanIssues(rows *sql.Rows) ([]*Issue, error) {
 	return vv, rows.Err()
 }
 
-func SelectIssue(db *sql.DB, query string, args ...interface{}) (*Issue, error) {
-	row := db.QueryRow(query, args...)
-	return ScanIssue(row)
-}
-
-func SelectIssues(db *sql.DB, query string, args ...interface{}) ([]*Issue, error) {
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return ScanIssues(rows)
-}
-
 func SliceIssue(v *Issue) []interface{} {
 	var v0 int64
 	var v1 int
@@ -109,7 +96,7 @@ func SliceIssue(v *Issue) []interface{} {
 	v3 = v.Body
 	v4 = v.Assignee
 	v5 = v.State
-	v6, _ = json.Unmarshal(&v.Labels)
+	v6, _ = json.Marshal(&v.Labels)
 
 	return []interface{}{
 		v0,
@@ -122,7 +109,40 @@ func SliceIssue(v *Issue) []interface{} {
 	}
 }
 
-const CreateIssue = `
+func SelectIssue(db *sql.DB, query string, args ...interface{}) (*Issue, error) {
+	row := db.QueryRow(query, args...)
+	return ScanIssue(row)
+}
+
+func SelectIssues(db *sql.DB, query string, args ...interface{}) ([]*Issue, error) {
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return ScanIssues(rows)
+}
+
+func InsertIssue(db *sql.DB, query string, v *Issue) error {
+
+	res, err := db.Exec(query, SliceIssue(v)[1:]...)
+	if err != nil {
+		return err
+	}
+
+	v.ID, err = res.LastInsertId()
+	return err
+}
+
+func UpdateIssue(db *sql.DB, query string, v *Issue) error {
+
+	args := SliceIssue(v)[1:]
+	args = append(args, v.ID)
+	_, err := db.Exec(query, args...)
+	return err
+}
+
+const CreateIssueStmt = `
 CREATE TABLE IF NOT EXISTS issues (
  issue_id       SERIAL PRIMARY KEY 
 ,issue_number   INTEGER
@@ -134,7 +154,7 @@ CREATE TABLE IF NOT EXISTS issues (
 );
 `
 
-const InsertIssue = `
+const InsertIssueStmt = `
 INSERT INTO issues (
  issue_number
 ,issue_title
@@ -145,7 +165,7 @@ INSERT INTO issues (
 ) VALUES ($1,$2,$3,$4,$5,$6)
 `
 
-const SelectAllIssue = `
+const SelectIssuesStmt = `
 SELECT 
  issue_id
 ,issue_number
@@ -157,7 +177,7 @@ SELECT
 FROM issues 
 `
 
-const SelectIssueRange = `
+const SelectIssueRangeStmt = `
 SELECT 
  issue_id
 ,issue_number
@@ -170,12 +190,12 @@ FROM issues
 LIMIT $1 OFFSET $2
 `
 
-const SelectIssueCount = `
+const SelectIssueCountStmt = `
 SELECT count(1)
 FROM issues 
 `
 
-const SelectIssuePrimaryKey = `
+const SelectIssuePkeyStmt = `
 SELECT 
  issue_id
 ,issue_number
@@ -188,7 +208,7 @@ FROM issues
 WHERE issue_id=$1
 `
 
-const UpdateIssuePrimaryKey = `
+const UpdateIssuePkeyStmt = `
 UPDATE issues SET 
  issue_id=$1
 ,issue_number=$2
@@ -200,7 +220,7 @@ UPDATE issues SET
 WHERE issue_id=$8
 `
 
-const DeleteIssuePrimaryKey = `
+const DeleteIssuePkeyStmt = `
 DELETE FROM issues 
 WHERE issue_id=$1
 `

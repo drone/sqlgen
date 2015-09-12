@@ -98,7 +98,7 @@ func writeSliceFunc(w io.Writer, tree *parse.Node) {
 
 		switch node.Kind {
 		case parse.Map, parse.Slice, parse.Struct, parse.Ptr:
-			fmt.Fprintf(&buf2, "v%d, _ = json.Unmarshal(&v.%s)\n", i, join(path, "."))
+			fmt.Fprintf(&buf2, "v%d, _ = json.Marshal(&v.%s)\n", i, join(path, "."))
 		default:
 			fmt.Fprintf(&buf2, "v%d=v.%s\n", i, join(path, "."))
 		}
@@ -235,6 +235,16 @@ func writeSelectRow(w io.Writer, tree *parse.Node) {
 func writeSelectRows(w io.Writer, tree *parse.Node) {
 	plural := inflections.Pluralize(tree.Type)
 	fmt.Fprintf(w, sSelectRows, plural, tree.Type, plural)
+}
+
+func writeInsertFunc(w io.Writer, tree *parse.Node) {
+	// TODO this assumes I'm using the ID field.
+	// we should not make that assumption
+	fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
+}
+
+func writeUpdateFunc(w io.Writer, tree *parse.Node) {
+	fmt.Fprintf(w, sUpdate, tree.Type, tree.Type, tree.Type)
 }
 
 // join is a helper function that joins nodes

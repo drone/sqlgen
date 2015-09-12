@@ -80,20 +80,6 @@ func ScanUsers(rows *sql.Rows) ([]*User, error) {
 	return vv, rows.Err()
 }
 
-func SelectUser(db *sql.DB, query string, args ...interface{}) (*User, error) {
-	row := db.QueryRow(query, args...)
-	return ScanUser(row)
-}
-
-func SelectUsers(db *sql.DB, query string, args ...interface{}) ([]*User, error) {
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	return ScanUsers(rows)
-}
-
 func SliceUser(v *User) []interface{} {
 	var v0 int64
 	var v1 string
@@ -122,7 +108,40 @@ func SliceUser(v *User) []interface{} {
 	}
 }
 
-const CreateUser = `
+func SelectUser(db *sql.DB, query string, args ...interface{}) (*User, error) {
+	row := db.QueryRow(query, args...)
+	return ScanUser(row)
+}
+
+func SelectUsers(db *sql.DB, query string, args ...interface{}) ([]*User, error) {
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	return ScanUsers(rows)
+}
+
+func InsertUser(db *sql.DB, query string, v *User) error {
+
+	res, err := db.Exec(query, SliceUser(v)[1:]...)
+	if err != nil {
+		return err
+	}
+
+	v.ID, err = res.LastInsertId()
+	return err
+}
+
+func UpdateUser(db *sql.DB, query string, v *User) error {
+
+	args := SliceUser(v)[1:]
+	args = append(args, v.ID)
+	_, err := db.Exec(query, args...)
+	return err
+}
+
+const CreateUserStmt = `
 CREATE TABLE IF NOT EXISTS users (
  user_id      INTEGER PRIMARY KEY AUTOINCREMENT
 ,user_name    TEXT
@@ -134,7 +153,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 `
 
-const InsertUser = `
+const InsertUserStmt = `
 INSERT INTO users (
  user_name
 ,user_pass
@@ -145,7 +164,7 @@ INSERT INTO users (
 ) VALUES (?,?,?,?,?,?)
 `
 
-const SelectAllUser = `
+const SelectUserStmt = `
 SELECT 
  user_id
 ,user_name
@@ -157,7 +176,7 @@ SELECT
 FROM users 
 `
 
-const SelectUserRange = `
+const SelectUserRangeStmt = `
 SELECT 
  user_id
 ,user_name
@@ -170,12 +189,12 @@ FROM users
 LIMIT ? OFFSET ?
 `
 
-const SelectUserCount = `
+const SelectUserCountStmt = `
 SELECT count(1)
 FROM users 
 `
 
-const SelectUserPrimaryKey = `
+const SelectUserPkeyStmt = `
 SELECT 
  user_id
 ,user_name
@@ -188,7 +207,7 @@ FROM users
 WHERE user_id=?
 `
 
-const UpdateUserPrimaryKey = `
+const UpdateUserPkeyStmt = `
 UPDATE users SET 
  user_id=?
 ,user_name=?
@@ -200,16 +219,16 @@ UPDATE users SET
 WHERE user_id=?
 `
 
-const DeleteUserPrimaryKey = `
+const DeleteUserPkeyStmt = `
 DELETE FROM users 
 WHERE user_id=?
 `
 
-const CreateUserName = `
+const CreateUserNameStmt = `
 CREATE UNIQUE INDEX IF NOT EXISTS user_name ON users (user_name)
 `
 
-const SelectUserName = `
+const SelectUserNameStmt = `
 SELECT 
  user_id
 ,user_name
@@ -222,7 +241,7 @@ FROM users
 WHERE user_name=?
 `
 
-const UpdateUserName = `
+const UpdateUserNameStmt = `
 UPDATE users SET 
  user_id=?
 ,user_name=?
@@ -234,16 +253,16 @@ UPDATE users SET
 WHERE user_name=?
 `
 
-const DeleteUserName = `
+const DeleteUserNameStmt = `
 DELETE FROM users 
 WHERE user_name=?
 `
 
-const CreateUserEmail = `
+const CreateUserEmailStmt = `
 CREATE UNIQUE INDEX IF NOT EXISTS user_email ON users (user_email)
 `
 
-const SelectUserEmail = `
+const SelectUserEmailStmt = `
 SELECT 
  user_id
 ,user_name
@@ -256,7 +275,7 @@ FROM users
 WHERE user_email=?
 `
 
-const UpdateUserEmail = `
+const UpdateUserEmailStmt = `
 UPDATE users SET 
  user_id=?
 ,user_name=?
@@ -268,7 +287,7 @@ UPDATE users SET
 WHERE user_email=?
 `
 
-const DeleteUserEmail = `
+const DeleteUserEmailStmt = `
 DELETE FROM users 
 WHERE user_email=?
 `

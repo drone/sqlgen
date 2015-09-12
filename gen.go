@@ -12,13 +12,14 @@ import (
 )
 
 var (
-	input     = flag.String("file", "", "input file name; required")
-	output    = flag.String("o", "", "output file name; required")
-	pkgName   = flag.String("pkg", "main", "output package name; required")
-	typeName  = flag.String("type", "", "type to generate; required")
-	database  = flag.String("db", "sqlite", "sql dialect; required")
-	genSchema = flag.Bool("schema", true, "generate sql schema and queries")
-	genFuncs  = flag.Bool("funcs", true, "generate sql helper functions")
+	input      = flag.String("file", "", "input file name; required")
+	output     = flag.String("o", "", "output file name; required")
+	pkgName    = flag.String("pkg", "main", "output package name; required")
+	typeName   = flag.String("type", "", "type to generate; required")
+	database   = flag.String("db", "sqlite", "sql dialect; required")
+	genSchema  = flag.Bool("schema", true, "generate sql schema and queries")
+	genFuncs   = flag.Bool("funcs", true, "generate sql helper functions")
+	extraFuncs = flag.Bool("extras", true, "generate extra sql helper functions")
 )
 
 func main() {
@@ -32,6 +33,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// if the code is generated in a different folder
+	// that the struct we need to import the struct
+	if tree.Pkg != *pkgName && *pkgName != "main" {
+		// TODO
+	}
+
 	// load the Tree into a schema Object
 	table := schema.Load(tree)
 	dialect := schema.New(schema.Dialects[*database])
@@ -43,9 +50,14 @@ func main() {
 		writeImports(&buf, tree, "database/sql")
 		writeRowFunc(&buf, tree)
 		writeRowsFunc(&buf, tree)
-		writeSelectRow(&buf, tree)
-		writeSelectRows(&buf, tree)
 		writeSliceFunc(&buf, tree)
+
+		if *extraFuncs {
+			writeSelectRow(&buf, tree)
+			writeSelectRows(&buf, tree)
+			writeInsertFunc(&buf, tree)
+			writeUpdateFunc(&buf, tree)
+		}
 	} else {
 		writePackage(&buf, *pkgName)
 	}

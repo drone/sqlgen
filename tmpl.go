@@ -104,17 +104,17 @@ func Insert%s(db *sql.DB, query string, v *%s) error {
 	}
 
 	v.ID, err = res.LastInsertId()
-	if err != nil {
-		panic(err)
-	}
+	return err
 }
 `
 
 // function template to update a single row.
 const sUpdate = `
 func Update%s(db *sql.DB, query string, v *%s) error {
-	
-	_, err := db.Exec(query, Slice%s(v)[1:]..., v.ID)
-	return 
+
+	args := Slice%s(v)[1:]
+	args = append(args, v.ID)
+	_, err := db.Exec(query, args...)
+	return err 
 }
 `

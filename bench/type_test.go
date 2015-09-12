@@ -23,7 +23,7 @@ func init() {
 	db.Exec("DROP TABLE users;")
 	dbx = sqlx.NewDb(db, "sqlite3")
 
-	ddl := []string{CreateUser}
+	ddl := []string{CreateUserStmt}
 	for _, stmt := range ddl {
 		_, err = db.Exec(stmt)
 		if err != nil {
@@ -38,12 +38,8 @@ func init() {
 		user.Pass = "pa55word"
 		user.Created = time.Now().Unix()
 		user.Updated = time.Now().Unix()
-		res, err := db.Exec(InsertUser, SliceUser(user)[1:]...)
-		if err != nil {
-			panic(err)
-		}
 
-		user.ID, err = res.LastInsertId()
+		err := InsertUser(db, InsertUserStmt, user)
 		if err != nil {
 			panic(err)
 		}
@@ -59,7 +55,7 @@ func BenchmarkMeddlerRow(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		user = &User{}
-		err = meddler.QueryRow(db, user, SelectUserPrimaryKey, 1)
+		err = meddler.QueryRow(db, user, SelectUserPkeyStmt, 1)
 		if err != nil {
 			panic(err)
 		}
@@ -72,7 +68,7 @@ func BenchmarkMeddlerRows(b *testing.B) {
 	var err error
 
 	for n := 0; n < b.N; n++ {
-		err = meddler.QueryAll(db, &users, SelectAllUser)
+		err = meddler.QueryAll(db, &users, SelectUserStmt)
 		if err != nil {
 			panic(err)
 		}
@@ -86,7 +82,7 @@ func BenchmarkSqlxRow(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		user = &User{}
-		err = dbx.Get(user, SelectUserPrimaryKey, 1)
+		err = dbx.Get(user, SelectUserPkeyStmt, 1)
 		if err != nil {
 			panic(err)
 		}
@@ -99,7 +95,7 @@ func BenchmarkSqlxRows(b *testing.B) {
 	var err error
 
 	for n := 0; n < b.N; n++ {
-		err = dbx.Select(&users, SelectAllUser)
+		err = dbx.Select(&users, SelectUserStmt)
 		if err != nil {
 			panic(err)
 		}
@@ -107,12 +103,12 @@ func BenchmarkSqlxRows(b *testing.B) {
 	results = users
 }
 
-func BenchmarkSqlRow(b *testing.B) {
+func BenchmarkSqlgenRow(b *testing.B) {
 	var user *User
 	var err error
 
 	for n := 0; n < b.N; n++ {
-		user, err = SelectUser(db, SelectUserPrimaryKey, 1)
+		user, err = SelectUser(db, SelectUserPkeyStmt, 1)
 		if err != nil {
 			panic(err)
 		}
@@ -120,12 +116,12 @@ func BenchmarkSqlRow(b *testing.B) {
 	result = user
 }
 
-func BenchmarkSqlRows(b *testing.B) {
+func BenchmarkSqlgenRows(b *testing.B) {
 	var users []*User
 	var err error
 
 	for n := 0; n < b.N; n++ {
-		users, err = SelectUsers(db, SelectAllUser)
+		users, err = SelectUsers(db, SelectUserStmt)
 		if err != nil {
 			panic(err)
 		}

@@ -15,43 +15,43 @@ func writeSchema(w io.Writer, d schema.Dialect, t *schema.Table) {
 
 	writeConst(w,
 		d.Table(t),
-		"create", inflect.Singularize(t.Name),
+		"create", inflect.Singularize(t.Name), "stmt",
 	)
 
 	writeConst(w,
 		d.Insert(t),
-		"insert", inflect.Singularize(t.Name),
+		"insert", inflect.Singularize(t.Name), "stmt",
 	)
 
 	writeConst(w,
 		d.Select(t, nil),
-		"select", "all", t.Name,
+		"select", inflect.Singularize(t.Name), "stmt",
 	)
 
 	writeConst(w,
 		d.SelectRange(t, nil),
-		"select", inflect.Singularize(t.Name), "range",
+		"select", inflect.Singularize(t.Name), "range", "stmt",
 	)
 
 	writeConst(w,
 		d.SelectCount(t, nil),
-		"select", inflect.Singularize(t.Name), "count",
+		"select", inflect.Singularize(t.Name), "count", "stmt",
 	)
 
 	if len(t.Primary) != 0 {
 		writeConst(w,
 			d.Select(t, t.Primary),
-			"select", inflect.Singularize(t.Name), "primary", "key",
+			"select", inflect.Singularize(t.Name), "pkey", "stmt",
 		)
 
 		writeConst(w,
 			d.Update(t, t.Primary),
-			"update", inflect.Singularize(t.Name), "primary", "key",
+			"update", inflect.Singularize(t.Name), "pkey", "stmt",
 		)
 
 		writeConst(w,
 			d.Delete(t, t.Primary),
-			"delete", inflect.Singularize(t.Name), "primary", "key",
+			"delete", inflect.Singularize(t.Name), "pkey", "stmt",
 		)
 	}
 
@@ -59,36 +59,36 @@ func writeSchema(w io.Writer, d schema.Dialect, t *schema.Table) {
 
 		writeConst(w,
 			d.Index(t, ix),
-			"create", ix.Name,
+			"create", ix.Name, "stmt",
 		)
 
 		writeConst(w,
 			d.Select(t, ix.Fields),
-			"select", ix.Name,
+			"select", ix.Name, "stmt",
 		)
 
 		if !ix.Unique {
 
 			writeConst(w,
 				d.SelectRange(t, ix.Fields),
-				"select", ix.Name, "range",
+				"select", ix.Name, "range", "stmt",
 			)
 
 			writeConst(w,
 				d.SelectCount(t, ix.Fields),
-				"select", ix.Name, "count",
+				"select", ix.Name, "count", "stmt",
 			)
 
 		} else {
 
 			writeConst(w,
 				d.Update(t, ix.Fields),
-				"update", ix.Name,
+				"update", ix.Name, "stmt",
 			)
 
 			writeConst(w,
 				d.Delete(t, ix.Fields),
-				"delete", ix.Name,
+				"delete", ix.Name, "stmt",
 			)
 		}
 	}
