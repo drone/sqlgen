@@ -238,22 +238,22 @@ func UpdateHook(db *sql.DB, query string, v *Hook) error {
 
 const CreateHookStmt = `
 CREATE TABLE IF NOT EXISTS hooks (
- hook_id                             INTEGER PRIMARY KEY AUTO_INCREMENT
-,hook_sha                            VARCHAR(512)
-,hook_after                          VARCHAR(512)
-,hook_before                         VARCHAR(512)
-,hook_created                        BOOLEAN
-,hook_deleted                        BOOLEAN
-,hook_forced                         BOOLEAN
-,hook_head_commit_id                 VARCHAR(512)
-,hook_head_commit_message            VARCHAR(512)
-,hook_head_commit_timestamp          VARCHAR(512)
-,hook_head_commit_author_name        VARCHAR(512)
-,hook_head_commit_author_email       VARCHAR(512)
-,hook_head_commit_author_username    VARCHAR(512)
-,hook_head_commit_committer_name     VARCHAR(512)
-,hook_head_commit_committer_email    VARCHAR(512)
-,hook_head_commit_committer_username VARCHAR(512)
+ hook_id                      INTEGER PRIMARY KEY AUTO_INCREMENT
+,hook_sha                     VARCHAR(512)
+,hook_after                   VARCHAR(512)
+,hook_before                  VARCHAR(512)
+,hook_created                 BOOLEAN
+,hook_deleted                 BOOLEAN
+,hook_forced                  BOOLEAN
+,hook_head_id                 VARCHAR(512)
+,hook_head_message            VARCHAR(512)
+,hook_head_timestamp          VARCHAR(512)
+,hook_head_author_name        VARCHAR(512)
+,hook_head_author_email       VARCHAR(512)
+,hook_head_author_username    VARCHAR(512)
+,hook_head_committer_name     VARCHAR(512)
+,hook_head_committer_email    VARCHAR(512)
+,hook_head_committer_username VARCHAR(512)
 );
 `
 
@@ -265,19 +265,19 @@ INSERT INTO hooks (
 ,hook_created
 ,hook_deleted
 ,hook_forced
-,hook_head_commit_id
-,hook_head_commit_message
-,hook_head_commit_timestamp
-,hook_head_commit_author_name
-,hook_head_commit_author_email
-,hook_head_commit_author_username
-,hook_head_commit_committer_name
-,hook_head_commit_committer_email
-,hook_head_commit_committer_username
+,hook_head_id
+,hook_head_message
+,hook_head_timestamp
+,hook_head_author_name
+,hook_head_author_email
+,hook_head_author_username
+,hook_head_committer_name
+,hook_head_committer_email
+,hook_head_committer_username
 ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 `
 
-const SelectHooksStmt = `
+const SelectHookStmt = `
 SELECT 
  hook_id
 ,hook_sha
@@ -286,15 +286,15 @@ SELECT
 ,hook_created
 ,hook_deleted
 ,hook_forced
-,hook_head_commit_id
-,hook_head_commit_message
-,hook_head_commit_timestamp
-,hook_head_commit_author_name
-,hook_head_commit_author_email
-,hook_head_commit_author_username
-,hook_head_commit_committer_name
-,hook_head_commit_committer_email
-,hook_head_commit_committer_username
+,hook_head_id
+,hook_head_message
+,hook_head_timestamp
+,hook_head_author_name
+,hook_head_author_email
+,hook_head_author_username
+,hook_head_committer_name
+,hook_head_committer_email
+,hook_head_committer_username
 FROM hooks 
 `
 
@@ -307,15 +307,15 @@ SELECT
 ,hook_created
 ,hook_deleted
 ,hook_forced
-,hook_head_commit_id
-,hook_head_commit_message
-,hook_head_commit_timestamp
-,hook_head_commit_author_name
-,hook_head_commit_author_email
-,hook_head_commit_author_username
-,hook_head_commit_committer_name
-,hook_head_commit_committer_email
-,hook_head_commit_committer_username
+,hook_head_id
+,hook_head_message
+,hook_head_timestamp
+,hook_head_author_name
+,hook_head_author_email
+,hook_head_author_username
+,hook_head_committer_name
+,hook_head_committer_email
+,hook_head_committer_username
 FROM hooks 
 LIMIT ? OFFSET ?
 `
@@ -334,15 +334,15 @@ SELECT
 ,hook_created
 ,hook_deleted
 ,hook_forced
-,hook_head_commit_id
-,hook_head_commit_message
-,hook_head_commit_timestamp
-,hook_head_commit_author_name
-,hook_head_commit_author_email
-,hook_head_commit_author_username
-,hook_head_commit_committer_name
-,hook_head_commit_committer_email
-,hook_head_commit_committer_username
+,hook_head_id
+,hook_head_message
+,hook_head_timestamp
+,hook_head_author_name
+,hook_head_author_email
+,hook_head_author_username
+,hook_head_committer_name
+,hook_head_committer_email
+,hook_head_committer_username
 FROM hooks 
 WHERE hook_id=?
 `
@@ -356,15 +356,15 @@ UPDATE hooks SET
 ,hook_created=?
 ,hook_deleted=?
 ,hook_forced=?
-,hook_head_commit_id=?
-,hook_head_commit_message=?
-,hook_head_commit_timestamp=?
-,hook_head_commit_author_name=?
-,hook_head_commit_author_email=?
-,hook_head_commit_author_username=?
-,hook_head_commit_committer_name=?
-,hook_head_commit_committer_email=?
-,hook_head_commit_committer_username=? 
+,hook_head_id=?
+,hook_head_message=?
+,hook_head_timestamp=?
+,hook_head_author_name=?
+,hook_head_author_email=?
+,hook_head_author_username=?
+,hook_head_committer_name=?
+,hook_head_committer_email=?
+,hook_head_committer_username=? 
 WHERE hook_id=?
 `
 

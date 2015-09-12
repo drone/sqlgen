@@ -165,7 +165,7 @@ INSERT INTO issues (
 ) VALUES ($1,$2,$3,$4,$5,$6)
 `
 
-const SelectIssuesStmt = `
+const SelectIssueStmt = `
 SELECT 
  issue_id
 ,issue_number

@@ -10,7 +10,7 @@ type Hook struct {
 	Created    bool
 	Deleted    bool
 	Forced     bool
-	HeadCommit *Commit
+	HeadCommit *Commit `sql:"name: head"`
 }
 
 type Commit struct {

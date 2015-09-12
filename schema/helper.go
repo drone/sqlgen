@@ -3,8 +3,8 @@ package schema
 import (
 	"strings"
 
-	"github.com/acsellers/inflections"
 	"github.com/drone/sqlgen/parse"
+	"github.com/acsellers/inflections"
 )
 
 func Load(tree *parse.Node) *Table {
@@ -82,6 +82,11 @@ func Load(tree *parse.Node) *Table {
 		path := node.Path()
 		var parts []string
 		for _, part := range path {
+			if part.Tags != nil && part.Tags.Name != "" {
+				parts = append(parts, part.Tags.Name)
+				continue
+			}
+
 			parts = append(parts, part.Name)
 		}
 		field.Name = strings.Join(parts, "_")
