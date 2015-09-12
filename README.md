@@ -32,7 +32,7 @@ Usage of sqlgen:
 
 First, let's start with a simple `User` struct in `user.go`:
 
-```
+```Go
 type User struct {
 	ID     int64
 	Login  string
@@ -48,7 +48,7 @@ sqlgen -file user.go -type User -pkg demo
 
 This will output the following generated code:
 
-```
+```Go
 func ScanUser(row *sql.Row) (*User, error) {
 	var v0 int64
 	var v1 string
@@ -106,11 +106,11 @@ You may annotate your fields with the following tags:
 
 For example:
 
-```
+```Go
 type User struct {
     ID      int64  `sql:"pk: true, auto: true"` // primary key, increment
     Login   string `sql:"unique: user_login"    // creates unique index
-    Email   string `sql:"size:255"`
+    Email   string `sql:"size: 255"`            // field size
     Company string `sql:"index: user_company"`  // creates index
     Temp    string `sql:"-"`                    // skip this field
 }
@@ -118,7 +118,7 @@ type User struct {
 
 Adding `unique` and `index` tags will generate `create index` statements, as well as `select`, `select count`, `select range`, `update` and `delete` statements using the indexed fields. For example:
 
-```
+```Go
 const CreateUserLogin = `
 CREATE UNIQUE INDEX IF NOT EXISTS user_login ON users (user_login)
 `
@@ -141,7 +141,7 @@ WHERE user_login=?
 
 Nested Go structures can be flattened into a single database table. As an example, we have a `User` and `Address` with a one-to-one relationship. It may not always make sense to normalize our data across tables.
 
-```
+```Go
 type User struct {
 	ID     int64  `sql:"pk: true"`
 	Login  string
@@ -158,7 +158,7 @@ type Address struct {
 
 The above relationship is flattened into a single table (see below). When the data is retrieved from the database the nested structure is restored.
 
-```
+```sql
 CREATE TALBE IF NOT EXISTS users (
  user_id         INTEGER PRIMARY KEY AUTO_INCREMENT
 ,user_login      TEXT
@@ -181,7 +181,7 @@ sqlgen -file user.go -type User -pkg demo -db postgres
 
 Example use with `go:generate`:
 
-```
+```Go
 package demo
 
 //go:generate sqlgen -file user.go -type User -pkg demo -o user_sql.go
