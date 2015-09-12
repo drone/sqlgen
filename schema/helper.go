@@ -60,6 +60,7 @@ func Load(tree *parse.Node) *Table {
 					index = new(Index)
 					index.Name = node.Tags.Index
 					indexs[index.Name] = index
+					table.Index = append(table.Index, index)
 				}
 				index.Fields = append(index.Fields, field)
 			}
