@@ -102,9 +102,10 @@ LIMIT ? OFFSET ?
 
 This is a great start, but what if we want to specify primary keys, column sizes and more? This may be acheived by annotating your code using Go tags. For example, we can tag the `ID` field to indicate it is a primary key and will auto increment:
 
-```Go
+```diff
 type User struct {
-    ID      int64  `sql:"pk: true, auto: true"`
+-   ID      int64
++   ID      int64  `sql:"pk: true, auto: true"`
     Login   string
     Email   string
 }
@@ -148,10 +149,11 @@ WHERE user_id=?
 
 We can take this one step further and annotate indexes. In our example, we probably want to make sure the `user_login` field has a unique index:
 
-```Go
+```diff
 type User struct {
     ID      int64  `sql:"pk: true, auto: true"`
-    Login   string `sql:"unique: user_login"`
+-   Login   string
++   Login   string `sql:"unique: user_login"`
     Email   string
 }
 ```
@@ -164,7 +166,7 @@ const CreateUserLogin = `
 CREATE UNIQUE INDEX IF NOT EXISTS user_login ON users (user_login)
 ```
 
-The tool also assumes that we probably indend to fetch data from the database using this index. The tool will therefore automatically generate the following queries:
+The tool also assumes that we probably intend to fetch data from the database using this index. The tool will therefore automatically generate the following queries:
 
 ```Go
 const SelectUserLoginStmt = `
@@ -191,20 +193,20 @@ WHERE user_login=?
 
 ### Nesting
 
-Nested Go structures can be flattened into a single database table. As an example, we have a `User` and `Address` with a one-to-one relationship. It may not always make sense to normalize our data across tables.
+Nested Go structures can be flattened into a single database table. As an example, we have a `User` and `Address` with a one-to-one relationship. In some cases, we may prefer to de-normalize our data and store in a single table, avoiding un-necessary joins.
 
-```Go
+```diff
 type User struct {
-	ID     int64  `sql:"pk: true"`
-	Login  string
-	Email  string
-	Addr   *Address
+    ID     int64  `sql:"pk: true"`
+    Login  string
+    Email  string
++   Addr   *Address
 }
 
 type Address struct {
-	City   string
-	State  string
-	Zip    string `sql:"index: user_zip"`
+    City   string
+    State  string
+    Zip    string `sql:"index: user_zip"`
 }
 ```
 
