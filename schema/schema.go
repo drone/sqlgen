@@ -5,6 +5,7 @@ const (
 	INTEGER int = iota
 	VARCHAR
 	BOOLEAN
+	REAL
 	BLOB
 )
 

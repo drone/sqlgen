@@ -3,8 +3,8 @@ package schema
 import (
 	"strings"
 
-	"github.com/drone/sqlgen/parse"
 	"github.com/acsellers/inflections"
+	"github.com/drone/sqlgen/parse"
 )
 
 func Load(tree *parse.Node) *Table {
@@ -76,6 +76,13 @@ func Load(tree *parse.Node) *Table {
 				}
 				index.Fields = append(index.Fields, field)
 			}
+
+			if node.Tags.Type != "" {
+				t, ok := sqlTypes[node.Tags.Type]
+				if ok {
+					field.Type = t
+				}
+			}
 		}
 
 		// get the full path name
@@ -120,4 +127,15 @@ var types = map[uint8]int{
 	parse.String:     VARCHAR,
 	parse.Map:        BLOB,
 	parse.Slice:      BLOB,
+}
+
+var sqlTypes = map[string]int{
+	"text":     VARCHAR,
+	"varchar":  VARCHAR,
+	"varchar2": VARCHAR,
+	"number":   INTEGER,
+	"integer":  INTEGER,
+	"int":      INTEGER,
+	"blob":     BLOB,
+	"bytea":    BLOB,
 }
