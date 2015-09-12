@@ -277,7 +277,7 @@ INSERT INTO hooks (
 ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 `
 
-const SelectHooksStmt = `
+const SelectHookStmt = `
 SELECT 
  hook_id
 ,hook_sha

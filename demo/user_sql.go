@@ -186,7 +186,7 @@ INSERT INTO users (
 ) VALUES (?,?,?,?,?,?,?,?)
 `
 
-const SelectUsersStmt = `
+const SelectUserStmt = `
 SELECT 
  user_id
 ,user_login
