@@ -3,8 +3,8 @@ package schema
 import (
 	"strings"
 
-	"github.com/acsellers/inflections"
 	"github.com/drone/sqlgen/parse"
+	"github.com/acsellers/inflections"
 )
 
 func Load(tree *parse.Node) *Table {
@@ -78,17 +78,18 @@ func Load(tree *parse.Node) *Table {
 		}
 
 		// get the full path name
-		if node.Tags.Name == "" {
-			path := node.Path()
-			var parts []string
-			for _, part := range path {
-				parts = append(parts, part.Name)
+		path := node.Path()
+		var parts []string
+		for _, part := range path {
+			if part.Tags != nil && part.Tags.Name != "" {
+				parts = append(parts, part.Tags.Name)
+				continue
 			}
-			field.Name = strings.Join(parts, "_")
-			field.Name = inflections.Underscore(field.Name)
-		} else {
-			field.Name = node.Tags.Name
+
+			parts = append(parts, part.Name)
 		}
+		field.Name = strings.Join(parts, "_")
+		field.Name = inflections.Underscore(field.Name)
 
 		table.Fields = append(table.Fields, field)
 	}
