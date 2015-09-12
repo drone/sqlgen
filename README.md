@@ -225,7 +225,7 @@ CREATE TALBE IF NOT EXISTS users (
 
 ### JSON Encoding
 
-Complex types that do not have native database column types, such as `[]string` or `map[string]string` can be encoded and stored as JSON. You can specify the encoding instruction as a Tag:
+Some types in your struct may not have native equivalents in your database such as `[]string`. These values can be marshaled and stored as JSON in the database.
 
 ```diff
 type User struct {

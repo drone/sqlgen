@@ -46,6 +46,13 @@ func Load(tree *parse.Node) *Table {
 				continue
 			}
 
+			// default ID and int64 to primary key
+			// with auto-increment
+			if node.Name == "ID" && node.Kind == parse.Int64 {
+				node.Tags.Primary = true
+				node.Tags.Auto = true
+			}
+
 			field.Auto = node.Tags.Auto
 			field.Primary = node.Tags.Primary
 			field.Size = node.Tags.Size
