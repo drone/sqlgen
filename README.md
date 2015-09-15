@@ -223,6 +223,19 @@ CREATE TALBE IF NOT EXISTS users (
 );
 ```
 
+### JSON Encoding
+
+Some types in your struct may not have native equivalents in your database such as `[]string`. These values can be marshaled and stored as JSON in the database.
+
+```diff
+type User struct {
+    ID     int64  `sql:"pk: true"`
+    Login  string
+    Email  string
++   Label  []string `sql:"encode: json"
+}
+```
+
 ### Dialects
 
 You may specify one of the following SQL dialects when generating your code: `postgres`, `mysql` and `sqlite`. The default value is `sqlite`.

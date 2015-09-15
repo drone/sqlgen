@@ -50,6 +50,13 @@ func Load(tree *parse.Node) *Table {
 				continue
 			}
 
+			// default ID and int64 to primary key
+			// with auto-increment
+			if node.Name == "ID" && node.Kind == parse.Int64 {
+				node.Tags.Primary = true
+				node.Tags.Auto = true
+			}
+
 			field.Auto = node.Tags.Auto
 			field.Primary = node.Tags.Primary
 			field.Size = node.Tags.Size
@@ -64,6 +71,7 @@ func Load(tree *parse.Node) *Table {
 					index = new(Index)
 					index.Name = node.Tags.Index
 					indexs[index.Name] = index
+					table.Index = append(table.Index, index)
 				}
 				index.Fields = append(index.Fields, field)
 			}
@@ -78,6 +86,13 @@ func Load(tree *parse.Node) *Table {
 					table.Index = append(table.Index, index)
 				}
 				index.Fields = append(index.Fields, field)
+			}
+
+			if node.Tags.Type != "" {
+				t, ok := sqlTypes[node.Tags.Type]
+				if ok {
+					field.Type = t
+				}
 			}
 		}
 
@@ -128,4 +143,15 @@ var types = map[uint8]int{
 	parse.String:     VARCHAR,
 	parse.Map:        BLOB,
 	parse.Slice:      BLOB,
+}
+
+var sqlTypes = map[string]int{
+	"text":     VARCHAR,
+	"varchar":  VARCHAR,
+	"varchar2": VARCHAR,
+	"number":   INTEGER,
+	"integer":  INTEGER,
+	"int":      INTEGER,
+	"blob":     BLOB,
+	"bytea":    BLOB,
 }
