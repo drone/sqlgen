@@ -56,8 +56,23 @@ func buildNodes(parent *Node, spec *ast.TypeSpec) error {
 		if field.Tag != nil {
 			tag = field.Tag.Value
 		}
-		buildNode(parent, field.Type, field.Names[0].Name, tag)
+
+		if field.Names[0].Name == "SQLName" {
+			var err error
+
+			parent.Tags, err = parseTag(tag)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
+		if err := buildNode(parent, field.Type, field.Names[0].Name, tag); err != nil {
+			return err
+		}
 	}
+
 	return nil
 }
 

@@ -16,8 +16,12 @@ func Load(tree *parse.Node) *Table {
 
 	// pluralizes the table name and then
 	// formats in snake case.
-	table.Name = inflections.Underscore(tree.Type)
-	table.Name = inflections.Pluralize(table.Name)
+	if tree.Tags != nil && tree.Tags.Name != "" {
+		table.Name = tree.Tags.Name
+	} else {
+		table.Name = inflections.Underscore(tree.Type)
+		table.Name = inflections.Pluralize(table.Name)
+	}
 
 	// each edge node in the tree is a column
 	// in the table. Convert each edge node to
@@ -96,6 +100,10 @@ func Load(tree *parse.Node) *Table {
 		path := node.Path()
 		var parts []string
 		for _, part := range path {
+			if part.Tags != nil && part.Tags.Skip {
+				continue
+			}
+
 			if part.Tags != nil && part.Tags.Name != "" {
 				parts = append(parts, part.Tags.Name)
 				continue
@@ -103,6 +111,7 @@ func Load(tree *parse.Node) *Table {
 
 			parts = append(parts, part.Name)
 		}
+
 		field.Name = strings.Join(parts, "_")
 		field.Name = inflections.Underscore(field.Name)
 
