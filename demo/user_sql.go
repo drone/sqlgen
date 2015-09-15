@@ -6,7 +6,7 @@ import (
 	"database/sql"
 )
 
-func ScanUser(row *sql.Row) (*User, error) {
+func ScanLegacyUser(row *sql.Row) (*LegacyUser, error) {
 	var v0 int64
 	var v1 string
 	var v2 string
@@ -32,7 +32,7 @@ func ScanUser(row *sql.Row) (*User, error) {
 		return nil, err
 	}
 
-	v := &User{}
+	v := &LegacyUser{}
 	v.ID = v0
 	v.Login = v1
 	v.Email = v2
@@ -46,9 +46,9 @@ func ScanUser(row *sql.Row) (*User, error) {
 	return v, nil
 }
 
-func ScanUsers(rows *sql.Rows) ([]*User, error) {
+func ScanLegacyUsers(rows *sql.Rows) ([]*LegacyUser, error) {
 	var err error
-	var vv []*User
+	var vv []*LegacyUser
 
 	var v0 int64
 	var v1 string
@@ -76,7 +76,7 @@ func ScanUsers(rows *sql.Rows) ([]*User, error) {
 			return vv, err
 		}
 
-		v := &User{}
+		v := &LegacyUser{}
 		v.ID = v0
 		v.Login = v1
 		v.Email = v2
@@ -92,7 +92,7 @@ func ScanUsers(rows *sql.Rows) ([]*User, error) {
 	return vv, rows.Err()
 }
 
-func SliceUser(v *User) []interface{} {
+func SliceLegacyUser(v *LegacyUser) []interface{} {
 	var v0 int64
 	var v1 string
 	var v2 string
@@ -126,23 +126,23 @@ func SliceUser(v *User) []interface{} {
 	}
 }
 
-func SelectUser(db *sql.DB, query string, args ...interface{}) (*User, error) {
+func SelectLegacyUser(db *sql.DB, query string, args ...interface{}) (*LegacyUser, error) {
 	row := db.QueryRow(query, args...)
-	return ScanUser(row)
+	return ScanLegacyUser(row)
 }
 
-func SelectUsers(db *sql.DB, query string, args ...interface{}) ([]*User, error) {
+func SelectLegacyUsers(db *sql.DB, query string, args ...interface{}) ([]*LegacyUser, error) {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	return ScanUsers(rows)
+	return ScanLegacyUsers(rows)
 }
 
-func InsertUser(db *sql.DB, query string, v *User) error {
+func InsertLegacyUser(db *sql.DB, query string, v *LegacyUser) error {
 
-	res, err := db.Exec(query, SliceUser(v)[1:]...)
+	res, err := db.Exec(query, SliceLegacyUser(v)[1:]...)
 	if err != nil {
 		return err
 	}
@@ -151,9 +151,9 @@ func InsertUser(db *sql.DB, query string, v *User) error {
 	return err
 }
 
-func UpdateUser(db *sql.DB, query string, v *User) error {
+func UpdateLegacyUser(db *sql.DB, query string, v *LegacyUser) error {
 
-	args := SliceUser(v)[1:]
+	args := SliceLegacyUser(v)[1:]
 	args = append(args, v.ID)
 	_, err := db.Exec(query, args...)
 	return err
@@ -161,56 +161,56 @@ func UpdateUser(db *sql.DB, query string, v *User) error {
 
 const CreateUserStmt = `
 CREATE TABLE IF NOT EXISTS users (
- user_id     INTEGER PRIMARY KEY AUTOINCREMENT
-,user_login  TEXT
-,user_email  TEXT
-,user_avatar TEXT
-,user_active BOOLEAN
-,user_admin  BOOLEAN
-,user_token  TEXT
-,user_secret TEXT
-,user_hash   TEXT
+ id     INTEGER PRIMARY KEY AUTOINCREMENT
+,login  TEXT
+,email  TEXT
+,avatar TEXT
+,active BOOLEAN
+,admin  BOOLEAN
+,token  TEXT
+,secret TEXT
+,hash   TEXT
 );
 `
 
 const InsertUserStmt = `
 INSERT INTO users (
- user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 ) VALUES (?,?,?,?,?,?,?,?)
 `
 
 const SelectUserStmt = `
 SELECT 
- user_id
-,user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ id
+,login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 FROM users 
 `
 
 const SelectUserRangeStmt = `
 SELECT 
- user_id
-,user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ id
+,login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 FROM users 
 LIMIT ? OFFSET ?
 `
@@ -222,110 +222,110 @@ FROM users
 
 const SelectUserPkeyStmt = `
 SELECT 
- user_id
-,user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ id
+,login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 FROM users 
-WHERE user_id=?
+WHERE id=?
 `
 
 const UpdateUserPkeyStmt = `
 UPDATE users SET 
- user_id=?
-,user_login=?
-,user_email=?
-,user_avatar=?
-,user_active=?
-,user_admin=?
-,user_token=?
-,user_secret=?
-,user_hash=? 
-WHERE user_id=?
+ id=?
+,login=?
+,email=?
+,avatar=?
+,active=?
+,admin=?
+,token=?
+,secret=?
+,hash=? 
+WHERE id=?
 `
 
 const DeleteUserPkeyStmt = `
 DELETE FROM users 
-WHERE user_id=?
+WHERE id=?
 `
 
-const CreateUserLoginStmt = `
-CREATE UNIQUE INDEX IF NOT EXISTS user_login ON users (user_login)
+const CreateLoginStmt = `
+CREATE UNIQUE INDEX IF NOT EXISTS login ON users (login)
 `
 
-const SelectUserLoginStmt = `
+const SelectLoginStmt = `
 SELECT 
- user_id
-,user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ id
+,login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 FROM users 
-WHERE user_login=?
+WHERE login=?
 `
 
-const UpdateUserLoginStmt = `
+const UpdateLoginStmt = `
 UPDATE users SET 
- user_id=?
-,user_login=?
-,user_email=?
-,user_avatar=?
-,user_active=?
-,user_admin=?
-,user_token=?
-,user_secret=?
-,user_hash=? 
-WHERE user_login=?
+ id=?
+,login=?
+,email=?
+,avatar=?
+,active=?
+,admin=?
+,token=?
+,secret=?
+,hash=? 
+WHERE login=?
 `
 
-const DeleteUserLoginStmt = `
+const DeleteLoginStmt = `
 DELETE FROM users 
-WHERE user_login=?
+WHERE login=?
 `
 
-const CreateUserEmailStmt = `
-CREATE UNIQUE INDEX IF NOT EXISTS user_email ON users (user_email)
+const CreateEmailStmt = `
+CREATE UNIQUE INDEX IF NOT EXISTS email ON users (email)
 `
 
-const SelectUserEmailStmt = `
+const SelectEmailStmt = `
 SELECT 
- user_id
-,user_login
-,user_email
-,user_avatar
-,user_active
-,user_admin
-,user_token
-,user_secret
-,user_hash
+ id
+,login
+,email
+,avatar
+,active
+,admin
+,token
+,secret
+,hash
 FROM users 
-WHERE user_email=?
+WHERE email=?
 `
 
-const UpdateUserEmailStmt = `
+const UpdateEmailStmt = `
 UPDATE users SET 
- user_id=?
-,user_login=?
-,user_email=?
-,user_avatar=?
-,user_active=?
-,user_admin=?
-,user_token=?
-,user_secret=?
-,user_hash=? 
-WHERE user_email=?
+ id=?
+,login=?
+,email=?
+,avatar=?
+,active=?
+,admin=?
+,token=?
+,secret=?
+,hash=? 
+WHERE email=?
 `
 
-const DeleteUserEmailStmt = `
+const DeleteEmailStmt = `
 DELETE FROM users 
-WHERE user_email=?
+WHERE email=?
 `
