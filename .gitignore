@@ -2,3 +2,5 @@ sqlgen
 *.sqlite
 *.txt
 _docs
+vendor/**
+!vendor/manifest

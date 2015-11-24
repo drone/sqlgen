@@ -20,6 +20,8 @@ var (
 	genSchema  = flag.Bool("schema", true, "generate sql schema and queries")
 	genFuncs   = flag.Bool("funcs", true, "generate sql helper functions")
 	extraFuncs = flag.Bool("extras", true, "generate extra sql helper functions")
+	doDI       = flag.Bool("doDI", false, "generate an interface for DI")
+	diName     = flag.String("diName", "sql.DB", "the concrete class to attach methods to")
 )
 
 func main() {
@@ -53,10 +55,13 @@ func main() {
 		writeSliceFunc(&buf, tree)
 
 		if *extraFuncs {
-			writeSelectRow(&buf, tree)
-			writeSelectRows(&buf, tree)
-			writeInsertFunc(&buf, tree)
-			writeUpdateFunc(&buf, tree)
+			writeSelectRow(&buf, tree, *doDI, *diName)
+			writeSelectRows(&buf, tree, *doDI, *diName)
+			writeInsertFunc(&buf, tree, *doDI, *diName)
+			writeUpdateFunc(&buf, tree, *doDI, *diName)
+		}
+		if *doDI {
+			writeInterface(&buf, tree)
 		}
 	} else {
 		writePackage(&buf, *pkgName)

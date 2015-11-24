@@ -228,23 +228,43 @@ func writeRowsFunc(w io.Writer, tree *parse.Node) {
 	)
 }
 
-func writeSelectRow(w io.Writer, tree *parse.Node) {
-	fmt.Fprintf(w, sSelectRow, tree.Type, tree.Type, tree.Type)
+func writeSelectRow(w io.Writer, tree *parse.Node, doDI bool, diName string) {
+	if doDI {
+		fmt.Fprintf(w, sSelectRowDI, diName, tree.Type, tree.Type, tree.Type)
+	} else {
+		fmt.Fprintf(w, sSelectRow, tree.Type, tree.Type, tree.Type)
+	}
 }
 
-func writeSelectRows(w io.Writer, tree *parse.Node) {
+func writeSelectRows(w io.Writer, tree *parse.Node, doDI bool, diName string) {
 	plural := inflections.Pluralize(tree.Type)
-	fmt.Fprintf(w, sSelectRows, plural, tree.Type, plural)
+	if doDI {
+		fmt.Fprintf(w, sSelectRowsDI, diName, plural, tree.Type, plural)
+	} else {
+		fmt.Fprintf(w, sSelectRows, plural, tree.Type, plural)
+	}
 }
 
-func writeInsertFunc(w io.Writer, tree *parse.Node) {
+func writeInsertFunc(w io.Writer, tree *parse.Node, doDI bool, diName string) {
 	// TODO this assumes I'm using the ID field.
 	// we should not make that assumption
-	fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
+	if doDI {
+		fmt.Fprintf(w, sInsertDI, diName, tree.Type, tree.Type, tree.Type)
+	} else {
+		fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
+	}
 }
 
-func writeUpdateFunc(w io.Writer, tree *parse.Node) {
-	fmt.Fprintf(w, sUpdate, tree.Type, tree.Type, tree.Type)
+func writeUpdateFunc(w io.Writer, tree *parse.Node, doDI bool, diName string) {
+	if doDI {
+		fmt.Fprintf(w, sUpdateDI, diName, tree.Type, tree.Type, tree.Type)
+	} else {
+		fmt.Fprintf(w, sUpdate, tree.Type, tree.Type, tree.Type)
+	}
+}
+
+func writeInterface(w io.Writer, tree *parse.Node) {
+	fmt.Fprintf(w, sInterface, tree.Type)
 }
 
 // join is a helper function that joins nodes

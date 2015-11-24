@@ -1,0 +1,41 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "bitbucket.org/pkg/inflect",
+			"repository": "https://bitbucket.org/pkg/inflect",
+			"revision": "8961c3750a47",
+			"branch": "default"
+		},
+		{
+			"importpath": "github.com/acsellers/inflections",
+			"repository": "https://github.com/acsellers/inflections",
+			"revision": "cb98bfe9e3ee28e8649778f5fbb2e95f54f71b39",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/jmoiron/sqlx",
+			"repository": "https://github.com/jmoiron/sqlx",
+			"revision": "54aec3fd91a2b2129ffaca0d652b8a9223ee2d9e",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/mattn/go-sqlite3",
+			"repository": "https://github.com/mattn/go-sqlite3",
+			"revision": "5651a9d9d49ec25811d08220ee972080378d52ea",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/russross/meddler",
+			"repository": "https://github.com/russross/meddler",
+			"revision": "f742b0f9424f3bfaffe189e921d734608929e84f",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/yaml.v2",
+			"repository": "https://gopkg.in/yaml.v2",
+			"revision": "53feefa2559fb8dfa8d81baad31be332c97d6c77",
+			"branch": "v2"
+		}
+	]
+}
