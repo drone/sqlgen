@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/drone/sqlgen/parse"
 	"github.com/drone/sqlgen/schema"
@@ -20,6 +21,7 @@ var (
 	genSchema  = flag.Bool("schema", true, "generate sql schema and queries")
 	genFuncs   = flag.Bool("funcs", true, "generate sql helper functions")
 	extraFuncs = flag.Bool("extras", true, "generate extra sql helper functions")
+	importPath = ""
 )
 
 func main() {
@@ -36,7 +38,7 @@ func main() {
 	// if the code is generated in a different folder
 	// that the struct we need to import the struct
 	if tree.Pkg != *pkgName && *pkgName != "main" {
-		// TODO
+		importPath = strings.Join([]string{*pkgName, tree.Pkg}, "/")
 	}
 
 	// load the Tree into a schema Object
@@ -47,7 +49,7 @@ func main() {
 
 	if *genFuncs {
 		writePackage(&buf, *pkgName)
-		writeImports(&buf, tree, "database/sql")
+		writeImports(&buf, tree, "database/sql", importPath)
 		writeRowFunc(&buf, tree)
 		writeRowsFunc(&buf, tree)
 		writeSliceFunc(&buf, tree)
