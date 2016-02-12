@@ -43,7 +43,9 @@ func writeImports(w io.Writer, tree *parse.Node, pkgs ...string) {
 	// encoder package that was specified.
 	fmt.Fprintln(w, "\nimport (")
 	for pkg, _ := range pmap {
-		fmt.Fprintf(w, "\t%q\n", pkg)
+		if pkg != "" {
+			fmt.Fprintf(w, "\t%q\n", pkg)
+		}
 	}
 	fmt.Fprintln(w, ")")
 }
