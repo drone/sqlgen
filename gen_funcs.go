@@ -239,13 +239,11 @@ func writeSelectRows(w io.Writer, tree *parse.Node) {
 }
 
 func writeInsertFunc(w io.Writer, tree *parse.Node, table *schema.Table) {
-	var hook string
 	if table.LastInsertId {
-		hook = sLastInsertId
+		fmt.Fprintf(w, sInsertAndGetLastId, tree.Type, tree.Type, tree.Type)
 	} else {
-		hook = sNoLastInsertId
+		fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
 	}
-	fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type, hook)
 }
 
 func writeUpdateFunc(w io.Writer, tree *parse.Node) {
