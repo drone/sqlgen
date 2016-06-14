@@ -31,8 +31,8 @@ func New(dialect int) Dialect {
 	case POSTGRES:
 		return newPostgres()
 	case MYSQL:
-		return newMysql()
+		return newMySQL()
 	default:
-		return newSqlite()
+		return newSQLite()
 	}
 }
