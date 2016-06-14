@@ -29,10 +29,10 @@ type Dialect interface {
 func New(dialect int) Dialect {
 	switch dialect {
 	case POSTGRES:
-		return newPosgres()
+		return newPostgres()
 	case MYSQL:
-		return newMysql()
+		return newMySQL()
 	default:
-		return newSqlite()
+		return newSQLite()
 	}
 }

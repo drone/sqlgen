@@ -4,7 +4,7 @@ type sqlite struct {
 	base
 }
 
-func newSqlite() Dialect {
+func newSQLite() Dialect {
 	d := &sqlite{}
 	d.base.Dialect = d
 	return d

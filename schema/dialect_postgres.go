@@ -4,18 +4,18 @@ import (
 	"fmt"
 )
 
-type posgres struct {
+type postgres struct {
 	base
 }
 
-func newPosgres() Dialect {
-	d := &posgres{}
+func newPostgres() Dialect {
+	d := &postgres{}
 	d.base.Dialect = d
 	return d
 }
 
-func (d *posgres) Column(f *Field) (_ string) {
-	// posgres uses a special column type
+func (d *postgres) Column(f *Field) (_ string) {
+	// postgres uses a special column type
 	// to autoincrementing keys.
 	if f.Auto {
 		return "SERIAL"
@@ -41,7 +41,7 @@ func (d *posgres) Column(f *Field) (_ string) {
 	}
 }
 
-func (d *posgres) Token(v int) (_ string) {
+func (d *postgres) Token(v int) (_ string) {
 	switch v {
 	case AUTO_INCREMENT:
 		// postgres does not support the
@@ -54,6 +54,6 @@ func (d *posgres) Token(v int) (_ string) {
 	}
 }
 
-func (d *posgres) Param(i int) string {
+func (d *postgres) Param(i int) string {
 	return fmt.Sprintf("$%d", i+1)
 }

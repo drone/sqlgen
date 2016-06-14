@@ -8,7 +8,7 @@ type mysql struct {
 	base
 }
 
-func newMysql() Dialect {
+func newMySQL() Dialect {
 	d := &mysql{}
 	d.base.Dialect = d
 	return d
