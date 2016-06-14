@@ -16,7 +16,8 @@ const (
 )
 
 type Table struct {
-	Name string
+	Name         string
+	LastInsertId bool
 
 	Fields  []*Field
 	Index   []*Index

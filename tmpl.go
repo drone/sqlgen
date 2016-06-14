@@ -103,9 +103,17 @@ func Insert%s(db *sql.DB, query string, v *%s) error {
 		return err
 	}
 
-	v.ID, err = res.LastInsertId()
+	%s
 	return err
 }
+`
+
+const sLastInsertId = `
+	v.ID, err = res.LastInsertId()
+`
+
+const sNoLastInsertId = `
+	_ = res
 `
 
 // function template to update a single row.

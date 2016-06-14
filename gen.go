@@ -55,7 +55,7 @@ func main() {
 		if *extraFuncs {
 			writeSelectRow(&buf, tree)
 			writeSelectRows(&buf, tree)
-			writeInsertFunc(&buf, tree)
+			writeInsertFunc(&buf, tree, table)
 			writeUpdateFunc(&buf, tree)
 		}
 	} else {
