@@ -51,6 +51,7 @@ func Load(tree *parse.Node) *Table {
 			if node.Name == "ID" && node.Kind == parse.Int64 {
 				node.Tags.Primary = true
 				node.Tags.Auto = true
+				table.LastInsertId = true
 			}
 
 			field.Auto = node.Tags.Auto

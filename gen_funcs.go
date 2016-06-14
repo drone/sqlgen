@@ -8,6 +8,7 @@ import (
 
 	"github.com/acsellers/inflections"
 	"github.com/drone/sqlgen/parse"
+	"github.com/drone/sqlgen/schema"
 )
 
 func writeImports(w io.Writer, tree *parse.Node, pkgs ...string) {
@@ -237,10 +238,12 @@ func writeSelectRows(w io.Writer, tree *parse.Node) {
 	fmt.Fprintf(w, sSelectRows, plural, tree.Type, plural)
 }
 
-func writeInsertFunc(w io.Writer, tree *parse.Node) {
-	// TODO this assumes I'm using the ID field.
-	// we should not make that assumption
-	fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
+func writeInsertFunc(w io.Writer, tree *parse.Node, table *schema.Table) {
+	if table.LastInsertId {
+		fmt.Fprintf(w, sInsertAndGetLastId, tree.Type, tree.Type, tree.Type)
+	} else {
+		fmt.Fprintf(w, sInsert, tree.Type, tree.Type, tree.Type)
+	}
 }
 
 func writeUpdateFunc(w io.Writer, tree *parse.Node) {
